@@ -16,8 +16,11 @@ users ──< orders >── products
 | username | VARCHAR(50) | UNIQUE, NOT NULL | 로그인 아이디 |
 | email | VARCHAR(100) | UNIQUE, NOT NULL | 이메일 주소 |
 | password_hash | VARCHAR(255) | NOT NULL | bcrypt 해시 비밀번호 |
-| status | VARCHAR(20) | DEFAULT 'active' | 계정 상태 (`active` / `inactive`) |
+| status | ENUM | NOT NULL, DEFAULT 'active' | 계정 상태 (`active` / `inactive`) |
+| grade | ENUM | NOT NULL, DEFAULT 'BRONZE' | 회원 등급 (`BRONZE` / `SILVER` / `GOLD`) |
 | created_at | DATETIME | DEFAULT NOW() | 가입일시 |
+
+> **변경 이력**: `status` 컬럼을 VARCHAR → ENUM(UserStatus)으로 변경, `grade` 컬럼 신규 추가
 
 ### products
 
@@ -43,7 +46,7 @@ users ──< orders >── products
 | unit_price | FLOAT | NOT NULL | 주문 시점 단가 |
 | discount_rate | FLOAT | DEFAULT 0.0 | 할인율 (0.0 ~ 1.0) |
 | total_price | FLOAT | NOT NULL | 최종 결제 금액 |
-| status | VARCHAR(20) | DEFAULT 'pending' | 주문 상태 (`pending` / `confirmed` / `shipped` / `cancelled`) |
+| status | VARCHAR(20) | DEFAULT 'pending' | 주문 상태 |
 | created_at | DATETIME | DEFAULT NOW() | 주문일시 |
 
 ## 인덱스
@@ -52,6 +55,7 @@ users ──< orders >── products
 |---|---|---|
 | users | email | UNIQUE |
 | users | username | UNIQUE |
+| users | grade | INDEX |
 | orders | user_id | INDEX |
 | orders | product_id | INDEX |
 | orders | status | INDEX |
@@ -61,3 +65,11 @@ users ──< orders >── products
 
 - `orders.user_id` → `users.id` (N:1, 한 회원이 여러 주문)
 - `orders.product_id` → `products.id` (N:1, 한 상품이 여러 주문에 포함)
+
+## 회원 등급 정책
+
+| 등급 | 조건 | 혜택 |
+|---|---|---|
+| BRONZE | 기본 등급 | - |
+| SILVER | 누적 구매 10회 이상 | 추가 할인 3% |
+| GOLD | 누적 구매 50회 이상 또는 연간 구매액 100만원 이상 | 추가 할인 7% |

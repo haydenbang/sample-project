@@ -4,8 +4,8 @@ from typing import List, Optional
 import bcrypt
 
 from database import get_db
-from models.user import User
-from schemas.user import UserCreate, UserUpdate, UserResponse
+from models.user import User, UserGrade as UserGradeModel
+from schemas.user import UserCreate, UserUpdate, UserResponse, UserGrade
 from common.deps import get_current_user
 
 router = APIRouter()
@@ -23,6 +23,25 @@ def list_users(
     if status:
         query = query.filter(User.status == status)
     return query.offset(skip).limit(limit).all()
+
+
+@router.get("/grade/{grade}", response_model=List[UserResponse])
+def list_users_by_grade(
+    grade: UserGrade,
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    """등급별 회원 조회 (BRONZE / SILVER / GOLD)"""
+    grade_enum = UserGradeModel[grade.value]
+    return (
+        db.query(User)
+        .filter(User.grade == grade_enum)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
 
 
 @router.get("/{user_id}", response_model=UserResponse)
@@ -77,6 +96,8 @@ def update_user(
         user.email = user_in.email
     if user_in.status is not None:
         user.status = user_in.status
+    if user_in.grade is not None:
+        user.grade = UserGradeModel[user_in.grade.value]
 
     db.commit()
     db.refresh(user)
