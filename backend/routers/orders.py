@@ -4,9 +4,11 @@ from typing import List, Optional
 
 from database import get_db
 from models.order import Order
+from models.product import Product
 from models.user import User
 from schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
-from services.order_service import create_order, cancel_order
+from services.discount import calc_discount
+from services.order_service import cancel_order
 from common.deps import get_current_user
 
 router = APIRouter()
@@ -54,7 +56,45 @@ def place_order(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    return create_order(db, order_in)
+    product = db.query(Product).filter(Product.id == order_in.product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="상품을 찾을 수 없습니다.")
+    if not product.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="판매 중지된 상품입니다.")
+    if product.stock < order_in.quantity:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"재고가 부족합니다. 현재 재고: {product.stock}",
+        )
+
+    discount_rate, item_total = calc_discount(
+        unit_price=product.price,
+        quantity=order_in.quantity,
+        user_id=order_in.user_id,
+    )
+    total_price = item_total + order_in.shipping.delivery_fee
+
+    order = Order(
+        user_id=order_in.user_id,
+        product_id=order_in.product_id,
+        quantity=order_in.quantity,
+        unit_price=product.price,
+        discount_rate=discount_rate,
+        total_price=total_price,
+        status="pending",
+        shipping_address=order_in.shipping.address,
+        receiver_name=order_in.shipping.receiver,
+        receiver_phone=order_in.shipping.phone,
+        delivery_fee=order_in.shipping.delivery_fee,
+    )
+    product.stock -= order_in.quantity
+    if product.stock == 0:
+        product.is_active = False
+
+    db.add(order)
+    db.commit()
+    db.refresh(order)
+    return order
 
 
 @router.patch("/{order_id}/status", response_model=OrderResponse)
