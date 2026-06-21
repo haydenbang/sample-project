@@ -83,7 +83,7 @@
   "items": [
     {
       "id": 1001, "user_id": 2, "status": "PAID",
-      "subtotal": 78000, "discount_amount": 3900, "total": 74100,
+      "subtotal": 78000, "discount_amount": 3900, "final_amount": 74100,
       "coupon_code": null,
       "items": [ { "product_id": 1, "unit_price": 39000, "quantity": 2, "line_total": 78000 } ]
     }

@@ -30,14 +30,18 @@ class OrderCreate(BaseModel):
 
 
 class OrderOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    # [API 스펙 변경] 응답 필드 total -> final_amount 로 변경. (scenario/api-spec-change)
+    # 모델 속성명(order.total)은 그대로이므로 validation_alias 로 매핑한다.
+    # TODO(전파): 프론트 types/order.ts, api/client.ts, OrdersPage, useOrders,
+    #            그리고 tests/test_orders.py 의 응답 필드 참조를 final_amount 로 갱신해야 한다.
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: int
     user_id: int
     status: OrderStatus
     subtotal: int
     discount_amount: int
-    total: int
+    final_amount: int = Field(validation_alias="total")
     coupon_code: str | None
     items: list[OrderItemOut]
 
