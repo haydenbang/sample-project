@@ -1,13 +1,21 @@
 import React, { useState } from 'react'
-import { UserCreate } from '../types/user'
+import { UserCreate, UserGrade } from '../types/user'
 import { createUser } from '../hooks/useUsers'
 
 interface UserFormProps {
   onSuccess?: () => void
 }
 
+const GRADE_OPTIONS: { value: UserGrade; label: string }[] = [
+  { value: 'bronze', label: '브론즈' },
+  { value: 'silver', label: '실버' },
+  { value: 'gold', label: '골드' },
+  { value: 'platinum', label: '플래티넘' },
+]
+
 export default function UserForm({ onSuccess }: UserFormProps) {
   const [form, setForm] = useState<UserCreate>({ username: '', email: '', password: '' })
+  const [grade, setGrade] = useState<UserGrade>('bronze')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -20,8 +28,9 @@ export default function UserForm({ onSuccess }: UserFormProps) {
     setSubmitting(true)
     setError(null)
     try {
-      await createUser(form)
+      await createUser({ ...form, grade })
       setForm({ username: '', email: '', password: '' })
+      setGrade('bronze')
       onSuccess?.()
     } catch (err: any) {
       setError(err.response?.data?.detail ?? '회원 등록에 실패했습니다.')
@@ -57,6 +66,14 @@ export default function UserForm({ onSuccess }: UserFormProps) {
         onChange={handleChange}
         required
       />
+      <div>
+        <label>등급: </label>
+        <select value={grade} onChange={(e) => setGrade(e.target.value as UserGrade)}>
+          {GRADE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
       <button type="submit" disabled={submitting}>
         {submitting ? '등록 중...' : '등록'}
       </button>
