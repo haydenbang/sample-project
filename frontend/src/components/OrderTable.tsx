@@ -45,6 +45,10 @@ export default function OrderTable({ orders, onStatusChange }: OrderTableProps) 
           <th>단가</th>
           <th>할인율</th>
           <th>최종금액</th>
+          <th>배송비</th>
+          <th>수령인</th>
+          <th>연락처</th>
+          <th>배송지</th>
           <th>상태</th>
           <th>주문일시</th>
           <th>액션</th>
@@ -60,6 +64,10 @@ export default function OrderTable({ orders, onStatusChange }: OrderTableProps) 
             <td>{order.unit_price.toLocaleString()}원</td>
             <td>{(order.discount_rate * 100).toFixed(0)}%</td>
             <td>{order.total_price.toLocaleString()}원</td>
+            <td>{(order.delivery_fee ?? 0).toLocaleString()}원</td>
+            <td>{order.receiver_name ?? '-'}</td>
+            <td>{order.receiver_phone ?? '-'}</td>
+            <td>{order.shipping_address ?? '-'}</td>
             <td>{STATUS_LABEL[order.status] ?? order.status}</td>
             <td>{new Date(order.created_at).toLocaleString('ko-KR')}</td>
             <td>
