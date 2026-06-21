@@ -1,8 +1,13 @@
+export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending'
+
+export type UserGrade = 'bronze' | 'silver' | 'gold' | 'platinum'
+
 export interface User {
   id: number
   username: string
   email: string
-  status: 'active' | 'inactive'
+  status: UserStatus
+  grade: UserGrade
   created_at: string
 }
 
@@ -14,5 +19,6 @@ export interface UserCreate {
 
 export interface UserUpdate {
   email?: string
-  status?: 'active' | 'inactive'
+  status?: UserStatus
+  grade?: UserGrade
 }
