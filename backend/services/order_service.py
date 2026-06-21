@@ -34,6 +34,10 @@ def create_order(db: Session, order_in: OrderCreate) -> Order:
         discount_rate=discount_rate,
         total_price=total_price,
         status="pending",
+        shipping_address=order_in.shipping.shipping_address,
+        receiver_name=order_in.shipping.receiver_name,
+        receiver_phone=order_in.shipping.receiver_phone,
+        delivery_fee=0.0,
     )
     product.stock -= order_in.quantity
     if product.stock == 0:
