@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import bcrypt
 
 from database import get_db
-from models.user import User
+from models.user import User, UserStatus
 from common.auth import create_token
 
 router = APIRouter()
@@ -26,7 +26,7 @@ def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="아이디 또는 비밀번호가 올바르지 않습니다.",
         )
-    if user.status == "inactive":
+    if user.status == UserStatus.inactive:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="비활성화된 계정입니다.",
