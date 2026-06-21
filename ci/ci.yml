@@ -1,0 +1,61 @@
+# 샘플 CI/CD 파이프라인 정의 (데모용 — 실제로 실행되지는 않음)
+# GitHub Actions 워크플로 형식으로 작성된 참조 파일이다.
+# 환경 변수/빌드 단계가 바뀌면 이 파일도 함께 갱신 대상이 된다.
+# (변경 영향도 데모: scenario/env-var-change)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (lint + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Test (pytest)
+        env:
+          ENVIRONMENT: test
+          SECRET_KEY: ci-secret
+        run: pytest
+
+  frontend:
+    name: Frontend (lint + test + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies
+        run: npm install
+      - name: Test (vitest)
+        run: npm run test
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build backend image
+        run: docker build -t shopadmin-backend:ci ./backend
+      - name: Build frontend image
+        run: docker build -t shopadmin-frontend:ci ./frontend

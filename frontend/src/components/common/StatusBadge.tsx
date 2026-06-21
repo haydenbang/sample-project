@@ -1,45 +1,41 @@
-import React from 'react'
+// 공통 상태 배지 컴포넌트.
+// Products/Orders/Users 페이지가 모두 이 컴포넌트를 사용한다.
+// props 를 바꾸면 모든 사용처가 영향받는다. (scenario/shared-component-change)
 
-interface Props {
-  status: string
+import "./StatusBadge.css";
+
+export interface StatusBadgeProps {
+  /** 표시할 상태 코드 (예: ACTIVE, PAID, VIP) */
+  status: string;
+  /** 선택적 표시 라벨 (없으면 status 를 그대로 표시) */
+  label?: string;
 }
 
-const colorMap: Record<string, string> = {
-  active:       'background:#d1fae5;color:#065f46',
-  inactive:     'background:#f3f4f6;color:#6b7280',
-  pending:      'background:#fef3c7;color:#92400e',
-  confirmed:    'background:#dbeafe;color:#1e40af',
-  shipped:      'background:#ede9fe;color:#5b21b6',
-  cancelled:    'background:#fee2e2;color:#991b1b',
-  in_stock:     'background:#d1fae5;color:#065f46',
-  out_of_stock: 'background:#fee2e2;color:#991b1b',
-}
+// 상태 코드 -> 색상 톤(CSS 클래스 접미사) 매핑
+const TONE: Record<string, string> = {
+  // product
+  DRAFT: "neutral",
+  ACTIVE: "success",
+  SOLD_OUT: "danger",
+  ARCHIVED: "neutral",
+  // order
+  PENDING: "warning",
+  PAID: "info",
+  SHIPPED: "info",
+  DELIVERED: "success",
+  CANCELLED: "danger",
+  // user grade
+  BRONZE: "neutral",
+  SILVER: "info",
+  GOLD: "warning",
+  VIP: "success",
+};
 
-const labelMap: Record<string, string> = {
-  active:       '활성',
-  inactive:     '비활성',
-  pending:      '대기중',
-  confirmed:    '확인됨',
-  shipped:      '배송중',
-  cancelled:    '취소됨',
-  in_stock:     '재고있음',
-  out_of_stock: '품절',
-}
-
-export function StatusBadge({ status }: Props) {
-  const style = colorMap[status] ?? 'background:#f3f4f6;color:#6b7280'
-  const label = labelMap[status] ?? status
+export function StatusBadge({ status, label }: StatusBadgeProps) {
+  const tone = TONE[status] ?? "neutral";
   return (
-    <span style={{
-      display: 'inline-flex',
-      alignItems: 'center',
-      padding: '2px 10px',
-      borderRadius: 9999,
-      fontSize: 12,
-      fontWeight: 500,
-      ...(Object.fromEntries(style.split(';').map(s => s.split(':') as [string, string]))),
-    }}>
-      {label}
+    <span className={`status-badge status-badge--${tone}`} data-testid="status-badge">
+      {label ?? status}
     </span>
-  )
+  );
 }

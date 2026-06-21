@@ -1,269 +1,148 @@
-# API 명세
+# API 명세서 (API Specification)
 
-## 기본 정보
+- **Base URL**: `/api`
+- **인증**: `Authorization: Bearer <JWT>` (로그인 제외)
+- **응답 포맷**: `application/json`
 
-- Base URL: `http://localhost:8000/api/v1`
-- 인증 방식: Bearer JWT Token
-- Content-Type: `application/json`
-
----
-
-## 인증 API
-
-### POST /auth/login
-
-로그인 후 JWT 토큰 발급
-
-**Request**
-```json
-{
-  "username": "admin",
-  "password": "password123"
-}
-```
-
-**Response 200**
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "token_type": "bearer"
-}
-```
+> 본 명세는 `backend/app/routers/*.py` 및 `backend/app/schemas/*.py` 와 동기화된다.
+> API 스펙이 바뀌면 프론트엔드 `src/api/client.ts`, `src/hooks/*`, `src/types/*` 가 영향을 받는다.
 
 ---
 
-## 회원 API
+## 1. Auth
 
-### GET /users
+### POST `/api/auth/login`
+로그인 후 JWT 발급.
 
-회원 목록 조회
-
-**Query Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---|---|---|---|
-| skip | integer | N | 오프셋 (기본값: 0) |
-| limit | integer | N | 조회 건수 (기본값: 20) |
-| status | string | N | 상태 필터 (`active` / `inactive`) |
-
-**Response 200**
+요청
 ```json
-[
-  {
-    "id": 1,
-    "username": "user01",
-    "email": "user01@example.com",
-    "status": "active",
-    "created_at": "2024-01-15T09:00:00"
-  }
-]
+{ "email": "admin@shopadmin.io", "password": "admin1234" }
 ```
 
-### GET /users/{user_id}
-
-회원 상세 조회
-
-**Response 200**
+응답 `200`
 ```json
-{
-  "id": 1,
-  "username": "user01",
-  "email": "user01@example.com",
-  "status": "active",
-  "created_at": "2024-01-15T09:00:00"
-}
+{ "access_token": "<jwt>", "token_type": "bearer", "role": "ADMIN" }
 ```
 
-### POST /users
+### GET `/api/auth/me`
+현재 사용자 정보 조회. (인증 필요)
 
-회원 등록
-
-**Request**
+응답 `200`
 ```json
-{
-  "username": "newuser",
-  "email": "newuser@example.com",
-  "password": "securepassword"
-}
+{ "id": 1, "email": "admin@shopadmin.io", "full_name": "관리자", "role": "ADMIN", "grade": "VIP" }
 ```
-
-**Response 201**
-```json
-{
-  "id": 42,
-  "username": "newuser",
-  "email": "newuser@example.com",
-  "status": "active",
-  "created_at": "2024-06-21T10:30:00"
-}
-```
-
-### PATCH /users/{user_id}
-
-회원 정보 수정
-
-**Request**
-```json
-{
-  "email": "updated@example.com",
-  "status": "inactive"
-}
-```
-
-**Response 200**: UserResponse 참조
 
 ---
 
-## 주문 API
+## 2. Products
 
-### GET /orders
+### GET `/api/products`
+상품 목록 조회.
 
-주문 목록 조회
+| 쿼리 | 타입 | 기본값 | 설명 |
+|------|------|--------|------|
+| `page` | int | 1 | 페이지 번호 |
+| `size` | int | 20 | 페이지 크기 |
+| `category` | string | - | 카테고리 필터 |
 
-**Query Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---|---|---|---|
-| skip | integer | N | 오프셋 |
-| limit | integer | N | 조회 건수 |
-| status | string | N | 주문 상태 필터 |
-| user_id | integer | N | 특정 회원 주문만 조회 |
-
-**Response 200**
-```json
-[
-  {
-    "id": 1,
-    "user_id": 3,
-    "product_id": 7,
-    "quantity": 5,
-    "unit_price": 29900.0,
-    "discount_rate": 0.05,
-    "total_price": 142025.0,
-    "status": "confirmed",
-    "created_at": "2024-06-20T14:22:00"
-  }
-]
-```
-
-### GET /orders/{order_id}
-
-주문 상세 조회
-
-**Response 200**: OrderResponse 참조
-
-### POST /orders
-
-주문 생성
-
-**Request**
+응답 `200`
 ```json
 {
-  "user_id": 3,
-  "product_id": 7,
-  "quantity": 5
+  "items": [
+    { "id": 1, "name": "무선 키보드", "category": "주변기기", "price": 39000, "stock": 12, "status": "ACTIVE" }
+  ],
+  "total": 1, "page": 1, "size": 20
 }
 ```
 
-**Response 201**: OrderResponse 참조
-
-### PATCH /orders/{order_id}/status
-
-주문 상태 변경
-
-**Request**
+### POST `/api/products` (ADMIN/STAFF)
+상품 등록.
 ```json
-{
-  "status": "confirmed"
-}
+{ "name": "무선 마우스", "category": "주변기기", "price": 25000, "stock": 30 }
 ```
 
-**Response 200**: OrderResponse 참조
+### PUT `/api/products/{id}` (ADMIN/STAFF)
+### DELETE `/api/products/{id}` (ADMIN)
 
 ---
 
-## 상품 API
+## 3. Orders
 
-### GET /products
+### GET `/api/orders`
+주문 목록 조회.
 
-상품 목록 조회
+| 쿼리 | 타입 | 기본값 | 설명 |
+|------|------|--------|------|
+| `status` | string | - | 주문 상태 필터 |
+| `page` | int | 1 | 페이지 번호 |
+| `size` | int | 20 | 페이지 크기 |
 
-**Query Parameters**
-| 파라미터 | 타입 | 필수 | 설명 |
-|---|---|---|---|
-| skip | integer | N | 오프셋 |
-| limit | integer | N | 조회 건수 |
-| category | string | N | 카테고리 필터 |
-| is_active | boolean | N | 판매 여부 필터 |
-
-**Response 200**
-```json
-[
-  {
-    "id": 7,
-    "name": "프리미엄 볼펜 세트",
-    "description": "부드러운 필기감의 볼펜 10자루 세트",
-    "price": 29900.0,
-    "stock": 150,
-    "category": "문구",
-    "is_active": true,
-    "created_at": "2024-03-10T08:00:00"
-  }
-]
-```
-
-### GET /products/{product_id}
-
-상품 상세 조회
-
-**Response 200**: ProductResponse 참조
-
-### POST /products
-
-상품 등록
-
-**Request**
+응답 `200`
 ```json
 {
-  "name": "신상품",
-  "description": "상품 설명",
-  "price": 15000.0,
-  "stock": 100,
-  "category": "생활용품"
+  "items": [
+    {
+      "id": 1001, "user_id": 2, "status": "PAID",
+      "subtotal": 78000, "discount_amount": 3900, "total": 74100,
+      "coupon_code": null,
+      "items": [ { "product_id": 1, "unit_price": 39000, "quantity": 2, "line_total": 78000 } ]
+    }
+  ],
+  "total": 1, "page": 1, "size": 20
 }
 ```
 
-**Response 201**: ProductResponse 참조
-
-### PATCH /products/{product_id}
-
-상품 정보 수정
-
-**Request** (부분 업데이트)
+### POST `/api/orders` (ADMIN/STAFF)
+주문 생성. 서버가 합계/할인/최종금액을 계산한다.
 ```json
 {
-  "price": 12000.0,
-  "stock": 80
+  "user_id": 2,
+  "coupon_code": "WELCOME5",
+  "items": [ { "product_id": 1, "quantity": 2 } ]
 }
 ```
 
-**Response 200**: ProductResponse 참조
+### PATCH `/api/orders/{id}/status` (ADMIN/STAFF)
+주문 상태 전이. 역행 전이는 `409`.
+```json
+{ "status": "SHIPPED" }
+```
 
 ---
 
-## 공통 에러 응답
+## 4. Users
 
-| 상태 코드 | 설명 |
-|---|---|
-| 400 | Bad Request - 잘못된 요청 파라미터 |
-| 401 | Unauthorized - 인증 토큰 없음 또는 만료 |
-| 403 | Forbidden - 권한 없음 |
-| 404 | Not Found - 리소스 없음 |
-| 409 | Conflict - 중복 데이터 (이메일, 아이디) |
-| 422 | Unprocessable Entity - 유효성 검사 실패 |
-| 500 | Internal Server Error |
+### GET `/api/users` (ADMIN/STAFF)
+회원 목록 조회.
 
-**에러 응답 형식**
+응답 `200`
 ```json
 {
-  "detail": "해당 회원을 찾을 수 없습니다."
+  "items": [
+    { "id": 2, "email": "user@shopadmin.io", "full_name": "홍길동", "role": "VIEWER", "grade": "GOLD", "is_active": true }
+  ],
+  "total": 1, "page": 1, "size": 20
 }
 ```
+
+### PATCH `/api/users/{id}/grade` (ADMIN)
+회원 등급 변경.
+```json
+{ "grade": "VIP" }
+```
+
+---
+
+## 5. 공통 에러 응답
+
+```json
+{ "detail": "에러 메시지" }
+```
+
+| 코드 | 의미 |
+|------|------|
+| 400 | 잘못된 요청 |
+| 401 | 인증 실패 |
+| 403 | 권한 없음 |
+| 404 | 리소스 없음 |
+| 409 | 상태 충돌(잘못된 상태 전이 등) |

@@ -1,66 +1,78 @@
-# 쇼핑몰 백오피스 샘플 프로젝트
+# ShopAdmin — 쇼핑몰 백오피스 샘플 프로젝트
 
-> change-propagator 데모용 샘플 코드베이스
+`change-propagator` 앱의 **변경 영향도 분석 데모**를 위한 타깃 샘플 프로젝트입니다.
+React(프론트엔드) + FastAPI(백엔드)로 구성된 SPA 백오피스로, 상품/주문/회원을 관리합니다.
 
-## 개요
-
-유통/쇼핑몰 백오피스 시스템의 샘플 구현체입니다.
-Python FastAPI 백엔드와 React/TypeScript 프론트엔드로 구성되어 있으며,
-**change-propagator** 도구가 Backend 구조 변화(DB/API/Domain)를 감지하고
-Full-Stack 전체 영향을 자동 분석하는 시나리오 데모에 사용됩니다.
-
-## 기술 스택
-
-- **Backend**: Python 3.11, FastAPI, SQLAlchemy, Pydantic v2, PostgreSQL
-- **Frontend**: React 18, TypeScript, Axios
-- **Auth**: JWT (python-jose)
-
-## 프로젝트 구조
+## 구성
 
 ```
 sample-project/
-├── docs/
-│   ├── db-schema.md        ← DB 스키마 정의 (ERD)
-│   ├── requirements.md     ← 기능 요구사항
-│   └── api-spec.md         ← API 명세
-├── backend/
-│   ├── main.py             ← FastAPI 앱 엔트리포인트
-│   ├── database.py         ← DB 연결 설정
-│   ├── common/             ← 인증, 의존성
-│   ├── models/             ← SQLAlchemy ORM 모델
-│   ├── schemas/            ← Pydantic 스키마
-│   ├── routers/            ← API 라우터
-│   └── services/           ← 비즈니스 로직
-└── frontend/src/
-    ├── types/              ← TypeScript 타입 정의
-    ├── hooks/              ← React Query 훅
-    ├── components/         ← UI 컴포넌트
-    └── pages/              ← 페이지 컴포넌트
+├── docs/                  # 요구사항서·DB스키마·API명세·시나리오 문서
+├── backend/               # FastAPI + SQLAlchemy + pytest
+│   ├── app/
+│   │   ├── models/ schemas/ routers/ services/ common/
+│   │   ├── config.py      # 환경 변수 주입 지점
+│   │   └── main.py
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements*.txt
+├── frontend/              # Vite + React + TS + vitest
+│   ├── src/
+│   │   ├── components/common/  # StatusBadge·PageHeader·DataTable (공통)
+│   │   ├── pages/ hooks/ types/ api/ utils/
+│   │   └── __tests__/
+│   ├── Dockerfile
+│   └── nginx.conf
+├── docker-compose.yml
+├── scripts/deploy.sh
+└── ci/ci.yml             # 샘플 CI/CD 파이프라인 정의 (데모용, 실행되지는 않음)
 ```
 
-## 시나리오 브랜치
+## 문서
 
-| 브랜치 | 시나리오 |
-|---|---|
-| `scenario/1-db-schema-change` | 회원 등급 및 상태 관리 고도화 |
-| `scenario/2-order-api-change` | 주문 API 배송 정보 구조 변경 |
-| `scenario/3-auth-module-change` | 인증 모듈 권한 체계 강화 |
-| `scenario/4-discount-policy-change` | 복합 할인 정책 도입 |
+| 문서 | 설명 |
+|------|------|
+| [기능 요구사항서](docs/requirements.md) | 기능/비기능 요구사항 |
+| [DB 스키마 정의서](docs/db-schema.md) | 테이블·컬럼·Enum 정의 |
+| [API 명세서](docs/api-spec.md) | REST 엔드포인트 계약 |
+| [변경 영향 시나리오](docs/scenarios.md) | 데모 브랜치별 영향 범위 |
 
-## 실행 방법
+## 로컬 실행
 
-### Backend
-
+### 백엔드
 ```bash
 cd backend
-pip install fastapi uvicorn sqlalchemy pydantic[email] python-jose[cryptography] psycopg2-binary
-uvicorn main:app --reload
+python -m venv .venv && source .venv/Scripts/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
+uvicorn app.main:app --reload          # http://localhost:8000/docs
+pytest                                  # 단위 테스트
 ```
 
-### Frontend
+기본 계정: `admin@shopadmin.io / admin1234` (ADMIN), `user@shopadmin.io / user1234` (VIEWER)
 
+### 프론트엔드
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev                             # http://localhost:5173
+npm run test                            # 단위 테스트
 ```
+
+### Docker
+```bash
+docker compose up --build               # frontend :8080 / backend :8000
+```
+
+## 변경 영향도 데모 시나리오
+
+각 시나리오는 별도 브랜치로 제공되며, `main` 과의 diff 로 영향 범위를 비교합니다.
+자세한 내용은 [docs/scenarios.md](docs/scenarios.md) 참고.
+
+| 브랜치 | 변경 트리거 | 영향 |
+|--------|-------------|------|
+| `scenario/req-change` | 요구사항서 신규 요구사항 추가 | 미구현 코드 추적 |
+| `scenario/db-schema-change` | `users` 컬럼 추가 | model→schema→router→type→docs |
+| `scenario/shared-component-change` | 공통 `StatusBadge` props 변경 | 사용하는 전 페이지 |
+| `scenario/api-spec-change` | `/api/orders` 응답 필드 변경 | client→hooks→page, 백엔드 스키마 |
+| `scenario/env-var-change` | 환경 변수 `PAYMENT_API_KEY` 추가 | config→Dockerfile→compose→CI |
+| `scenario/discount-policy-change` | 할인 서비스 변경 | order_service→tests→프론트 표시 |

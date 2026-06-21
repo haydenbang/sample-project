@@ -1,27 +1,19 @@
+// 상품 타입. 백엔드 schemas/product.py 와 동기화.
+
+export type ProductStatus = "DRAFT" | "ACTIVE" | "SOLD_OUT" | "ARCHIVED";
+
 export interface Product {
-  id: number
-  name: string
-  description: string | null
-  price: number
-  stock: number
-  category: string | null
-  is_active: boolean
-  created_at: string
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  status: ProductStatus;
 }
 
-export interface ProductCreate {
-  name: string
-  description?: string
-  price: number
-  stock: number
-  category?: string
-}
-
-export interface ProductUpdate {
-  name?: string
-  description?: string
-  price?: number
-  stock?: number
-  category?: string
-  is_active?: boolean
+export interface ProductListResponse {
+  items: Product[];
+  total: number;
+  page: number;
+  size: number;
 }

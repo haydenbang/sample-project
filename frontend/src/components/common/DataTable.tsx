@@ -1,66 +1,57 @@
-import React from 'react'
+// 공통 데이터 테이블. 컬럼 정의 + 행 데이터를 받아 렌더링한다.
+// 모든 목록 페이지가 사용한다.
+
+import type { ReactNode } from "react";
+import "./DataTable.css";
 
 export interface Column<T> {
-  key: keyof T
-  label: string
-  render?: (value: any, row: T) => React.ReactNode
+  key: string;
+  header: string;
+  /** 셀 렌더러 (없으면 row[key] 출력) */
+  render?: (row: T) => ReactNode;
 }
 
-interface Props<T> {
-  columns: Column<T>[]
-  data: T[]
-  loading?: boolean
-  emptyMessage?: string
+export interface DataTableProps<T> {
+  columns: Column<T>[];
+  rows: T[];
+  rowKey: (row: T) => string | number;
+  emptyMessage?: string;
 }
 
-const thStyle: React.CSSProperties = {
-  padding: '10px 14px',
-  textAlign: 'left',
-  fontSize: 12,
-  fontWeight: 600,
-  color: '#6b7280',
-  textTransform: 'uppercase',
-  borderBottom: '1px solid #e5e7eb',
-  background: '#f9fafb',
-}
-
-const tdStyle: React.CSSProperties = {
-  padding: '10px 14px',
-  fontSize: 14,
-  color: '#111827',
-  borderBottom: '1px solid #f3f4f6',
-}
-
-export function DataTable<T extends { id: number }>({ columns, data, loading, emptyMessage }: Props<T>) {
-  if (loading) {
-    return <div style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>불러오는 중...</div>
-  }
-  if (!data.length) {
-    return <div style={{ textAlign: 'center', padding: 40, color: '#9ca3af' }}>{emptyMessage ?? '데이터가 없습니다.'}</div>
-  }
-
+export function DataTable<T>({
+  columns,
+  rows,
+  rowKey,
+  emptyMessage = "데이터가 없습니다.",
+}: DataTableProps<T>) {
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
+    <table className="data-table">
+      <thead>
+        <tr>
+          {columns.map((col) => (
+            <th key={col.key}>{col.header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.length === 0 ? (
           <tr>
-            {columns.map(col => (
-              <th key={String(col.key)} style={thStyle}>{col.label}</th>
-            ))}
+            <td className="data-table__empty" colSpan={columns.length}>
+              {emptyMessage}
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {data.map(row => (
-            <tr key={row.id} style={{ background: '#fff' }}>
-              {columns.map(col => (
-                <td key={String(col.key)} style={tdStyle}>
-                  {col.render ? col.render(row[col.key], row) : String(row[col.key] ?? '')}
+        ) : (
+          rows.map((row) => (
+            <tr key={rowKey(row)}>
+              {columns.map((col) => (
+                <td key={col.key}>
+                  {col.render ? col.render(row) : String((row as Record<string, unknown>)[col.key])}
                 </td>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
+          ))
+        )}
+      </tbody>
+    </table>
+  );
 }

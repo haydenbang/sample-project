@@ -1,19 +1,23 @@
-import React from 'react'
+// 공통 페이지 헤더. 모든 페이지 상단에 사용된다.
 
-interface Props {
-  title: string
-  description?: string
-  action?: React.ReactNode
+import type { ReactNode } from "react";
+import "./PageHeader.css";
+
+export interface PageHeaderProps {
+  title: string;
+  description?: string;
+  /** 우측 액션 영역 (버튼 등) */
+  actions?: ReactNode;
 }
 
-export function PageHeader({ title, description, action }: Props) {
+export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+    <header className="page-header">
       <div>
-        <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>{title}</h2>
-        {description && <p style={{ margin: '4px 0 0', fontSize: 14, color: '#6b7280' }}>{description}</p>}
+        <h1 className="page-header__title">{title}</h1>
+        {description && <p className="page-header__desc">{description}</p>}
       </div>
-      {action && <div>{action}</div>}
-    </div>
-  )
+      {actions && <div className="page-header__actions">{actions}</div>}
+    </header>
+  );
 }

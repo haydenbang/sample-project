@@ -1,26 +1,26 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
-import { StatusBadge } from '../components/common/StatusBadge'
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-describe('StatusBadge', () => {
-  it('active 상태의 한글 라벨을 렌더링한다', () => {
-    render(<StatusBadge status="active" />)
-    expect(screen.getByText('활성')).toBeInTheDocument()
-  })
+import { StatusBadge } from "../components/common/StatusBadge";
 
-  it('pending 상태를 렌더링한다', () => {
-    render(<StatusBadge status="pending" />)
-    expect(screen.getByText('대기중')).toBeInTheDocument()
-  })
+describe("StatusBadge", () => {
+  it("status 코드를 그대로 표시한다", () => {
+    render(<StatusBadge status="ACTIVE" />);
+    expect(screen.getByTestId("status-badge")).toHaveTextContent("ACTIVE");
+  });
 
-  it('cancelled 상태를 렌더링한다', () => {
-    render(<StatusBadge status="cancelled" />)
-    expect(screen.getByText('취소됨')).toBeInTheDocument()
-  })
+  it("label 이 있으면 label 을 표시한다", () => {
+    render(<StatusBadge status="ACTIVE" label="판매중" />);
+    expect(screen.getByTestId("status-badge")).toHaveTextContent("판매중");
+  });
 
-  it('알 수 없는 status는 그대로 표시한다', () => {
-    render(<StatusBadge status="unknown_status" />)
-    expect(screen.getByText('unknown_status')).toBeInTheDocument()
-  })
-})
+  it("상태별 톤 클래스를 적용한다", () => {
+    render(<StatusBadge status="CANCELLED" />);
+    expect(screen.getByTestId("status-badge")).toHaveClass("status-badge--danger");
+  });
+
+  it("알 수 없는 상태는 neutral 톤을 사용한다", () => {
+    render(<StatusBadge status="UNKNOWN" />);
+    expect(screen.getByTestId("status-badge")).toHaveClass("status-badge--neutral");
+  });
+});
