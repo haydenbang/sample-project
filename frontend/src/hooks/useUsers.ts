@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { User, UserCreate, UserUpdate } from '../types/user'
+import { User, UserCreate, UserUpdate, UserStatus } from '../types/user'
 
 const API_BASE = 'http://localhost:8000/api/v1'
 
@@ -9,7 +9,7 @@ function getAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export function useUsers(statusFilter?: string) {
+export function useUsers(statusFilter?: UserStatus) {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
