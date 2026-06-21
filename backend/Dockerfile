@@ -18,7 +18,10 @@ ENV ENVIRONMENT=production \
     DATABASE_URL=sqlite:///./shopadmin.db \
     SECRET_KEY=change-me-in-prod \
     ACCESS_TOKEN_EXPIRE_MINUTES=60 \
-    CORS_ORIGINS=http://localhost
+    CORS_ORIGINS=http://localhost \
+    PAYMENT_API_KEY=change-me-in-prod
+# 주의: PAYMENT_API_KEY 가 추가됨. docker-compose.yml / scripts/deploy.sh / ci/ci.yml 에도
+#       동일하게 주입되어야 하지만 아직 반영되지 않았다. (scenario/env-var-change)
 
 EXPOSE 8000
 

@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-me"
     access_token_expire_minutes: int = 60
 
+    # 결제 연동 (신규, 필수) — 외부 결제 게이트웨이 API 키 (scenario/env-var-change)
+    # TODO(전파): 이 변수가 주입되도록 backend/Dockerfile, docker-compose.yml,
+    #            scripts/deploy.sh(REQUIRED_ENV), ci/ci.yml, .env.example 를 갱신해야 한다.
+    payment_api_key: str = "dev-payment-key"  # 운영에서는 반드시 환경변수로 주입
+
     # CORS (콤마 구분)
     cors_origins: str = "http://localhost:5173"
 
