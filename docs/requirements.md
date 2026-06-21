@@ -52,6 +52,14 @@ ShopAdmin은 쇼핑몰 운영자가 **상품 / 주문 / 회원**을 관리하는
 | FR-PRODUCT-03 | 상품은 `DRAFT / ACTIVE / SOLD_OUT / ARCHIVED` 상태를 가진다. | High |
 | FR-PRODUCT-04 | 재고(`stock`)가 0이면 상태가 자동으로 `SOLD_OUT`이 된다. | Medium |
 | FR-PRODUCT-05 | 카테고리별로 상품을 필터링한다. | Low |
+| FR-PRODUCT-06 | 재고가 임계치(기본 5개) 이하이면 "재고 부족" 알림을 표시한다. **(신규)** | High |
+| FR-PRODUCT-07 | 운영자는 상품별 재고 임계치를 설정할 수 있다. **(신규)** | Medium |
+
+> **[변경 영향 - 미구현]** FR-PRODUCT-06/07 은 요구사항만 추가된 상태이며 아직 구현되지 않았다.
+> 구현 시 영향 예상 범위:
+> - DB: `products.low_stock_threshold` 컬럼 추가 (db-schema.md, models/product.py)
+> - Backend: 재고 부족 판정 로직 및 응답 필드 추가 (schemas/product.py, routers/products.py)
+> - Frontend: `ProductsPage` 에 재고 부족 배지/알림 표시 (StatusBadge 활용)
 
 ### FR-ORDER: 주문 관리
 
