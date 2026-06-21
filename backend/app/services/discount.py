@@ -8,11 +8,12 @@
 from app.models.user import UserGrade
 
 # 회원 등급별 할인율 (요구사항서 §3)
+# [정책 변경] VIP 할인율 10% -> 15% 상향 (scenario/discount-policy-change)
 GRADE_DISCOUNT_RATE: dict[UserGrade, float] = {
     UserGrade.BRONZE: 0.0,
     UserGrade.SILVER: 0.03,
     UserGrade.GOLD: 0.05,
-    UserGrade.VIP: 0.10,
+    UserGrade.VIP: 0.15,
 }
 
 # 데모용 쿠폰 테이블: code -> (종류, 값)
@@ -42,7 +43,13 @@ def coupon_discount(subtotal: int, coupon_code: str | None) -> int:
     return min(value, subtotal)
 
 
-def calculate_discount(subtotal: int, grade: UserGrade, coupon_code: str | None = None) -> int:
-    """등급 할인 + 쿠폰 할인 합계를 반환한다. (subtotal 초과 불가)"""
+def calculate_discount(subtotal: int, grade: UserGrade, *, coupon_code: str | None = None) -> int:
+    """등급 할인 + 쿠폰 할인 합계를 반환한다. (subtotal 초과 불가)
+
+    [시그니처 변경] coupon_code 를 키워드 전용 인자로 변경했다.
+    (scenario/discount-policy-change)
+    TODO(전파): 호출부 services/order_service.py 와 tests/test_discount.py 를
+               새 시그니처/할인율(VIP 15%)에 맞게 갱신해야 한다.
+    """
     total_discount = grade_discount(subtotal, grade) + coupon_discount(subtotal, coupon_code)
     return min(total_discount, subtotal)
