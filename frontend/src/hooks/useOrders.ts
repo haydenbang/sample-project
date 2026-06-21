@@ -42,6 +42,7 @@ export function useOrder(orderId: number) {
 }
 
 export async function createOrder(data: OrderCreate): Promise<Order> {
+  // data.shipping (shipping_address, receiver_name, receiver_phone) 필드가 필수입니다.
   const res = await axios.post<Order>(`${API_BASE}/orders`, data, {
     headers: getAuthHeader(),
   })
