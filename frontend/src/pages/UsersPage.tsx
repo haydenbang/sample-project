@@ -1,31 +1,72 @@
-// 회원 목록 페이지.
-// 공통 컴포넌트와 useUsers 훅을 사용한다.
-// 회원 필드(grade 등)에 의존한다. (scenario/db-schema-change)
+import React, { useState } from 'react'
+import { useUsers } from '../hooks/useUsers'
+import UserForm from '../components/UserForm'
+import { User } from '../types/user'
 
-import { DataTable, type Column } from "../components/common/DataTable";
-import { PageHeader } from "../components/common/PageHeader";
-import { StatusBadge } from "../components/common/StatusBadge";
-import { useUsers } from "../hooks/useUsers";
-import type { User } from "../types/user";
+export default function UsersPage() {
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined)
+  const [showForm, setShowForm] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const { users, loading, error } = useUsers(statusFilter)
 
-const columns: Column<User>[] = [
-  { key: "id", header: "ID" },
-  { key: "email", header: "이메일" },
-  { key: "full_name", header: "이름" },
-  { key: "role", header: "권한" },
-  { key: "grade", header: "등급", render: (u) => <StatusBadge status={u.grade} /> },
-  { key: "is_active", header: "활성", render: (u) => (u.is_active ? "Y" : "N") },
-];
+  const handleSuccess = () => {
+    setShowForm(false)
+    setRefreshKey((k) => k + 1)
+  }
 
-export function UsersPage() {
-  const { users, loading, error } = useUsers();
+  if (loading) return <div>로딩 중...</div>
+  if (error) return <div style={{ color: 'red' }}>오류: {error}</div>
 
   return (
-    <section>
-      <PageHeader title="회원 관리" description="회원 등급과 상태를 조회합니다." />
-      {loading && <p>불러오는 중…</p>}
-      {error && <p role="alert">{error}</p>}
-      {!loading && !error && <DataTable columns={columns} rows={users} rowKey={(u) => u.id} />}
-    </section>
-  );
+    <div style={{ padding: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h2>회원 관리</h2>
+        <button onClick={() => setShowForm((v) => !v)}>
+          {showForm ? '닫기' : '+ 회원 등록'}
+        </button>
+      </div>
+
+      {showForm && <UserForm onSuccess={handleSuccess} />}
+
+      <div style={{ marginBottom: 12 }}>
+        <label>상태 필터: </label>
+        <select value={statusFilter ?? ''} onChange={(e) => setStatusFilter(e.target.value || undefined)}>
+          <option value="">전체</option>
+          <option value="active">활성</option>
+          <option value="inactive">비활성</option>
+        </select>
+      </div>
+
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>아이디</th>
+            <th>이메일</th>
+            <th>전화번호</th>
+            <th>상태</th>
+            <th>가입일</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user: User) => (
+            <tr key={user.id}>
+              <td>{user.id}</td>
+              <td>{user.username}</td>
+              <td>{user.email}</td>
+              <td>{user.phone ?? '-'}</td>
+              <td>
+                <span style={{ color: user.status === 'active' ? 'green' : 'gray' }}>
+                  {user.status === 'active' ? '활성' : '비활성'}
+                </span>
+              </td>
+              <td>{new Date(user.created_at).toLocaleDateString('ko-KR')}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {users.length === 0 && <div style={{ textAlign: 'center', padding: 32, color: '#999' }}>회원이 없습니다.</div>}
+    </div>
+  )
 }
