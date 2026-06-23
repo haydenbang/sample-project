@@ -12,6 +12,7 @@ from app.database import Base
 class ProductStatus(str, enum.Enum):
     DRAFT = "DRAFT"
     ACTIVE = "ACTIVE"
+    LOW_STOCK = "LOW_STOCK"   # 재고 임계값(3개) 이하 — 요구사항 FR-PRODUCT-05
     SOLD_OUT = "SOLD_OUT"
     ARCHIVED = "ARCHIVED"
 

@@ -34,3 +34,15 @@ def test_update_to_zero_stock_marks_sold_out(client, seed_basic):
     res = client.put(f"/api/products/{pid}", headers=headers, json={"stock": 0})
     assert res.status_code == 200
     assert res.json()["status"] == "SOLD_OUT"
+
+
+def test_create_low_stock_product_marks_low_stock(client, seed_basic):
+    """재고 3개 이하로 생성하면 LOW_STOCK 상태가 된다 (요구사항 FR-PRODUCT-05)."""
+    headers = auth_header(client, "admin@shopadmin.io", "admin1234")
+    res = client.post(
+        "/api/products",
+        headers=headers,
+        json={"name": "마우스 패드", "category": "주변기기", "price": 8000, "stock": 3},
+    )
+    assert res.status_code == 201
+    assert res.json()["status"] == "LOW_STOCK"
