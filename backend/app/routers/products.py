@@ -11,11 +11,20 @@ from app.schemas.product import ProductCreate, ProductListOut, ProductOut, Produ
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
+LOW_STOCK_THRESHOLD = 5
+
 
 def _sync_status(product: Product) -> None:
-    """재고 0이면 SOLD_OUT 자동 처리 (요구사항 FR-PRODUCT-04)."""
-    if product.stock == 0 and product.status == ProductStatus.ACTIVE:
+    """재고 상태에 따라 자동으로 상태 전환 (요구사항 FR-PRODUCT-04)."""
+    if product.stock == 0 and product.status in (
+        ProductStatus.ACTIVE,
+        ProductStatus.LOW_STOCK,
+    ):
         product.status = ProductStatus.SOLD_OUT
+    elif 0 < product.stock <= LOW_STOCK_THRESHOLD and product.status == ProductStatus.ACTIVE:
+        product.status = ProductStatus.LOW_STOCK
+    elif product.stock > LOW_STOCK_THRESHOLD and product.status == ProductStatus.LOW_STOCK:
+        product.status = ProductStatus.ACTIVE
 
 
 @router.get("", response_model=ProductListOut)
@@ -40,7 +49,12 @@ def create_product(
     _: object = Depends(require_roles(UserRole.ADMIN, UserRole.STAFF)),
 ) -> Product:
     product = Product(**payload.model_dump())
-    product.status = ProductStatus.ACTIVE if product.stock > 0 else ProductStatus.DRAFT
+    if product.stock == 0:
+        product.status = ProductStatus.DRAFT
+    elif product.stock <= LOW_STOCK_THRESHOLD:
+        product.status = ProductStatus.LOW_STOCK
+    else:
+        product.status = ProductStatus.ACTIVE
     db.add(product)
     db.commit()
     db.refresh(product)
