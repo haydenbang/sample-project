@@ -1,6 +1,6 @@
 // 상품 타입. 백엔드 schemas/product.py 와 동기화.
 
-export type ProductStatus = "DRAFT" | "ACTIVE" | "SOLD_OUT" | "ARCHIVED";
+export type ProductStatus = "DRAFT" | "ACTIVE" | "SOLD_OUT" | "ARCHIVED" | "LOW_STOCK";
 
 export interface Product {
   id: number;
