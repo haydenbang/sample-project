@@ -37,7 +37,10 @@ def seed(db: Session) -> None:
     monitor = Product(
         name="27인치 모니터", category="디스플레이", price=210000, stock=0, status=ProductStatus.SOLD_OUT
     )
-    db.add_all([keyboard, mouse, monitor])
+    headset = Product(
+        name="게이밍 헤드셋", category="주변기기", price=55000, stock=3, status=ProductStatus.LOW_STOCK
+    )
+    db.add_all([keyboard, mouse, monitor, headset])
     db.flush()
 
     order = Order(
