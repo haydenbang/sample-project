@@ -18,6 +18,7 @@ const TONE: Record<string, string> = {
   ACTIVE: "success",
   SOLD_OUT: "danger",
   ARCHIVED: "neutral",
+  LOW_STOCK: "warning",
   // order
   PENDING: "warning",
   PAID: "info",
