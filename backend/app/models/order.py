@@ -15,6 +15,7 @@ class OrderStatus(str, enum.Enum):
     SHIPPED = "SHIPPED"
     DELIVERED = "DELIVERED"
     CANCELLED = "CANCELLED"
+    REFUNDED = "REFUNDED"   # 운영 incident 핫픽스 — 취소 주문의 환불 완료 상태
 
 
 class Order(Base):

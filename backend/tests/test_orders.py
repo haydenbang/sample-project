@@ -47,3 +47,17 @@ def test_valid_status_transition(client, seed_basic):
     res = client.patch(f"/api/orders/{order_id}/status", headers=headers, json={"status": "PAID"})
     assert res.status_code == 200
     assert res.json()["status"] == "PAID"
+
+
+def test_refund_after_cancel(client, seed_basic):
+    """취소(CANCELLED)된 주문은 환불 완료(REFUNDED)로 전이할 수 있다.
+
+    운영 incident 핫픽스: 결제 취소 건의 환불 완료를 표시할 상태가 없어 도입.
+    order_service.ALLOWED_TRANSITIONS 에 전이 규칙이 반영되어야 통과한다.
+    """
+    headers = auth_header(client, "admin@shopadmin.io", "admin1234")
+    order_id = _create_order(client, headers, seed_basic).json()["id"]
+    client.patch(f"/api/orders/{order_id}/status", headers=headers, json={"status": "CANCELLED"})
+    res = client.patch(f"/api/orders/{order_id}/status", headers=headers, json={"status": "REFUNDED"})
+    assert res.status_code == 200
+    assert res.json()["status"] == "REFUNDED"
