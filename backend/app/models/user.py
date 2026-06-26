@@ -25,6 +25,7 @@ class UserGrade(str, enum.Enum):
     SILVER = "SILVER"
     GOLD = "GOLD"
     VIP = "VIP"
+    PLATINUM = "PLATINUM"   # 신규 최상위 등급 — 요구사항 §3 (15% 할인)
 
 
 class User(Base):

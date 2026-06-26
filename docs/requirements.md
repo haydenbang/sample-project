@@ -68,7 +68,7 @@ ShopAdmin은 쇼핑몰 운영자가 **상품 / 주문 / 회원**을 관리하는
 | ID | 요구사항 | 우선순위 |
 |----|----------|----------|
 | FR-USER-01 | 회원 목록을 조회한다. | High |
-| FR-USER-02 | 회원 등급(`BRONZE / SILVER / GOLD / VIP`)을 관리한다. | Medium |
+| FR-USER-02 | 회원 등급(`BRONZE / SILVER / GOLD / VIP / PLATINUM`)을 관리한다. | Medium |
 | FR-USER-03 | 회원 등급에 따라 주문 할인율이 달라진다. | Medium |
 
 ### FR-DASH: 대시보드(공통)
@@ -90,6 +90,7 @@ ShopAdmin은 쇼핑몰 운영자가 **상품 / 주문 / 회원**을 관리하는
 | SILVER | 3% |
 | GOLD | 5% |
 | VIP | 10% |
+| PLATINUM | 15% |
 
 > 쿠폰 할인은 정액(`AMOUNT`) 또는 정률(`PERCENT`) 중 하나로 적용한다.
 

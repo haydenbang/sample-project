@@ -39,3 +39,9 @@ def test_calculate_discount_combines_grade_and_coupon():
 
 def test_calculate_discount_capped_at_subtotal():
     assert calculate_discount(2000, UserGrade.VIP, "SAVE3000") == 2000
+
+
+def test_platinum_grade_discount():
+    """PLATINUM 등급은 15% 할인을 받는다 (요구사항서 §3, FR-USER-03)."""
+    # discount.py GRADE_DISCOUNT_RATE 에 PLATINUM 이 반영되어야 통과한다.
+    assert grade_discount(100_000, UserGrade.PLATINUM) == 15_000
