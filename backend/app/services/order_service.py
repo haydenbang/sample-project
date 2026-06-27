@@ -50,7 +50,7 @@ def create_order(db: Session, payload: OrderCreate) -> Order:
         status=OrderStatus.PENDING,
         subtotal=subtotal,
         discount_amount=discount,
-        total=subtotal - discount,
+        final_amount=subtotal - discount,
         coupon_code=payload.coupon_code,
         items=items,
     )
