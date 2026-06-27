@@ -13,6 +13,7 @@ GRADE_DISCOUNT_RATE: dict[UserGrade, float] = {
     UserGrade.SILVER: 0.03,
     UserGrade.GOLD: 0.05,
     UserGrade.VIP: 0.10,
+    UserGrade.PLATINUM: 0.15,
 }
 
 # 데모용 쿠폰 테이블: code -> (종류, 값)
