@@ -45,7 +45,7 @@ def seed(db: Session) -> None:
         status=OrderStatus.PAID,
         subtotal=78000,
         discount_amount=3900,
-        total=74100,
+        final_amount=74100,
         coupon_code=None,
         items=[
             OrderItem(product_id=keyboard.id, unit_price=39000, quantity=2, line_total=78000),
