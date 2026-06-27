@@ -6,7 +6,9 @@ import { DataTable, type Column } from "../components/common/DataTable";
 import { PageHeader } from "../components/common/PageHeader";
 import { StatusBadge } from "../components/common/StatusBadge";
 import { useUsers } from "../hooks/useUsers";
-import type { User } from "../types/user";
+import type { User, UserGrade } from "../types/user";
+
+const GRADE_OPTIONS: UserGrade[] = ["BRONZE", "SILVER", "GOLD", "VIP", "PLATINUM"];
 
 const columns: Column<User>[] = [
   { key: "id", header: "ID" },
