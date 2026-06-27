@@ -18,10 +18,10 @@ def test_create_order_calculates_total_with_grade_discount(client, seed_basic):
     res = _create_order(client, headers, seed_basic)
     assert res.status_code == 201
     body = res.json()
-    # 39000 * 2 = 78000, GOLD 5% = 3900 -> total 74100
+    # 39000 * 2 = 78000, GOLD 5% = 3900 -> final_amount 74100
     assert body["subtotal"] == 78000
     assert body["discount_amount"] == 3900
-    assert body["total"] == 74100
+    assert body["final_amount"] == 74100
 
 
 def test_create_order_with_coupon(client, seed_basic):
@@ -30,7 +30,7 @@ def test_create_order_with_coupon(client, seed_basic):
     body = res.json()
     # GOLD 5% (3900) + SAVE3000 (3000) = 6900
     assert body["discount_amount"] == 6900
-    assert body["total"] == 71100
+    assert body["final_amount"] == 71100
 
 
 def test_invalid_status_transition_returns_409(client, seed_basic):
