@@ -1,5 +1,7 @@
 """pytest 공통 픽스처: 인메모리 DB와 TestClient."""
 
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -11,6 +13,10 @@ from app.database import Base, get_db
 from app.main import app
 from app.models.product import Product, ProductStatus
 from app.models.user import User, UserGrade, UserRole
+
+# 테스트 환경에서 payment_api_key가 없으면 pydantic ValidationError가 발생하므로
+# 더미 키를 환경변수로 주입한다.
+os.environ.setdefault("PAYMENT_API_KEY", "test-dummy-payment-api-key")
 
 
 @pytest.fixture
