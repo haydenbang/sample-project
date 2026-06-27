@@ -22,7 +22,7 @@ export interface Order {
   status: OrderStatus;
   subtotal: number;
   discount_amount: number;
-  total: number;
+  final_amount: number;
   coupon_code: string | null;
   items: OrderItem[];
 }
