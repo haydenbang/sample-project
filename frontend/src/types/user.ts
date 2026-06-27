@@ -2,7 +2,7 @@
 // 컬럼/필드가 바뀌면 함께 변경되어야 한다. (scenario/db-schema-change)
 
 export type UserRole = "ADMIN" | "STAFF" | "VIEWER";
-export type UserGrade = "BRONZE" | "SILVER" | "GOLD" | "VIP";
+export type UserGrade = "BRONZE" | "SILVER" | "GOLD" | "VIP" | "PLATINUM";
 
 export interface User {
   id: number;
