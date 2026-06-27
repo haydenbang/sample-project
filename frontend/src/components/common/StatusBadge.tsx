@@ -29,6 +29,7 @@ const TONE: Record<string, string> = {
   SILVER: "info",
   GOLD: "warning",
   VIP: "success",
+  PLATINUM: "primary",
 };
 
 export function StatusBadge({ status, label }: StatusBadgeProps) {
