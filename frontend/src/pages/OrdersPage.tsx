@@ -1,6 +1,6 @@
 // 주문 목록 페이지.
 // 공통 컴포넌트와 useOrders 훅을 사용한다.
-// 주문 응답 필드(total 등)에 의존한다. (scenario/api-spec-change)
+// 주문 응답 필드(final_amount 등)에 의존한다. (scenario/api-spec-change)
 
 import { DataTable, type Column } from "../components/common/DataTable";
 import { PageHeader } from "../components/common/PageHeader";
@@ -19,7 +19,7 @@ const columns: Column<Order>[] = [
     header: "할인",
     render: (o) => `${formatKRW(o.discount_amount)} (${formatDiscount(o.subtotal, o.discount_amount)})`,
   },
-  { key: "total", header: "결제금액", render: (o) => formatKRW(o.total) },
+  { key: "final_amount", header: "결제금액", render: (o) => formatKRW(o.final_amount) },
 ];
 
 export function OrdersPage() {
