@@ -26,7 +26,14 @@ def seed(db: Session) -> None:
         role=UserRole.VIEWER,
         grade=UserGrade.GOLD,
     )
-    db.add_all([admin, customer])
+    platinum_customer = User(
+        email="platinum@shopadmin.io",
+        hashed_password=hash_password("platinum1234"),
+        full_name="플래티넘회원",
+        role=UserRole.VIEWER,
+        grade=UserGrade.PLATINUM,
+    )
+    db.add_all([admin, customer, platinum_customer])
 
     keyboard = Product(
         name="무선 키보드", category="주변기기", price=39000, stock=12, status=ProductStatus.ACTIVE

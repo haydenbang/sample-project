@@ -12,6 +12,7 @@ GRADE_DISCOUNT_RATE: dict[UserGrade, float] = {
     UserGrade.BRONZE: 0.0,
     UserGrade.SILVER: 0.03,
     UserGrade.GOLD: 0.05,
+    UserGrade.PLATINUM: 0.08,
     UserGrade.VIP: 0.10,
 }
 
