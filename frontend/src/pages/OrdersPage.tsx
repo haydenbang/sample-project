@@ -20,6 +20,7 @@ const columns: Column<Order>[] = [
     render: (o) => `${formatKRW(o.discount_amount)} (${formatDiscount(o.subtotal, o.discount_amount)})`,
   },
   { key: "total", header: "결제금액", render: (o) => formatKRW(o.total) },
+  { key: "final_amount", header: "최종금액", render: (o) => formatKRW(o.final_amount) },
 ];
 
 export function OrdersPage() {

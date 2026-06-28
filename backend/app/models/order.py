@@ -28,6 +28,7 @@ class Order(Base):
     subtotal: Mapped[int] = mapped_column(Integer, nullable=False)
     discount_amount: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     total: Mapped[int] = mapped_column(Integer, nullable=False)
+    final_amount: Mapped[int] = mapped_column(Integer, nullable=False)
     coupon_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 

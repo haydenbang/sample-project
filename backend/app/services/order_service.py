@@ -1,3 +1,6 @@
+Looking at the change event, `final_amount` is a new required non-nullable `int` field added to `OrderOut`. The service needs to populate this field when creating/updating orders. Based on the existing logic, `final_amount` should be `subtotal - discount` (same as `total`), ensuring the field is set on the `Order` model instance.
+
+```python
 """주문 생성/상태전이 비즈니스 로직."""
 
 from fastapi import HTTPException, status
@@ -45,12 +48,14 @@ def create_order(db: Session, payload: OrderCreate) -> Order:
         )
 
     discount = calculate_discount(subtotal, user.grade, payload.coupon_code)
+    final_amount = subtotal - discount
     order = Order(
         user_id=user.id,
         status=OrderStatus.PENDING,
         subtotal=subtotal,
         discount_amount=discount,
-        total=subtotal - discount,
+        total=final_amount,
+        final_amount=final_amount,
         coupon_code=payload.coupon_code,
         items=items,
     )
@@ -70,3 +75,4 @@ def transition_status(db: Session, order: Order, new_status: OrderStatus) -> Ord
     db.commit()
     db.refresh(order)
     return order
+```
