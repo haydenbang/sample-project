@@ -1,4 +1,4 @@
-"""상품(products) 모델. docs/db-schema.md §2.2 매핑."""
+"""Product model."""
 
 import enum
 from datetime import datetime

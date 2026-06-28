@@ -1,13 +1,8 @@
-"""할인 정책 공통 서비스.
-
-요구사항서(docs/requirements.md §3)의 비즈니스 규칙을 구현한다.
-이 함수의 시그니처/규칙을 바꾸면 order_service, 테스트, 프론트 금액 표시가 영향받는다.
-(변경 영향도 데모: scenario/discount-policy-change)
-"""
+"""할인 정책 공통 서비스."""
 
 from app.models.user import UserGrade
 
-# 회원 등급별 할인율 (요구사항서 §3)
+# 회원 등급별 할인율
 GRADE_DISCOUNT_RATE: dict[UserGrade, float] = {
     UserGrade.BRONZE: 0.0,
     UserGrade.SILVER: 0.03,

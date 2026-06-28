@@ -1,4 +1,4 @@
-"""상품 라우터. docs/api-spec.md §2 매핑."""
+"""상품 라우터. docs/api-spec.md 섹션2 매핑."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
