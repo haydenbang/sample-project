@@ -1,3 +1,9 @@
+Looking at the change event, `final_amount` has been added to `OrderOut`. I need to:
+
+1. Add `final_amount` to the `Order` type usage (the type definition itself is in `../types/order`, but this file needs to render it)
+2. Add a column for `final_amount` in the table
+
+```tsx
 // 주문 목록 페이지.
 // 공통 컴포넌트와 useOrders 훅을 사용한다.
 // 주문 응답 필드(total 등)에 의존한다. (scenario/api-spec-change)
@@ -20,6 +26,7 @@ const columns: Column<Order>[] = [
     render: (o) => `${formatKRW(o.discount_amount)} (${formatDiscount(o.subtotal, o.discount_amount)})`,
   },
   { key: "total", header: "결제금액", render: (o) => formatKRW(o.total) },
+  { key: "final_amount", header: "최종금액", render: (o) => formatKRW(o.final_amount) },
 ];
 
 export function OrdersPage() {
@@ -36,3 +43,4 @@ export function OrdersPage() {
     </section>
   );
 }
+```
