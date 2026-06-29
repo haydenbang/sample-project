@@ -1,3 +1,16 @@
+Looking at the change event, the `coupon_code` parameter in `calculate_discount` changed from a positional parameter to a keyword-only parameter. This is a 2-step indirect impact through `order_service.py` → `discount.py`.
+
+The risks mention that API response contracts with discount values may be affected (e.g., VIP discount changing from 10% to 15%). The router itself doesn't directly call `calculate_discount`, but the response contract concern is valid.
+
+Examining the current `orders.py` file, I don't see any direct calls to `calculate_discount` or `create_order` with `coupon_code` as a positional argument. The file itself doesn't need code logic changes since:
+
+1. It doesn't call `calculate_discount` directly
+2. The `create_order` call signature in this file (`create_order(db, payload)`) remains unchanged
+3. The router just passes `payload` through
+
+The file is functionally correct as-is. The risk described is about documentation/response contracts, but the code itself doesn't need modification. I'll preserve the file exactly as it is since no actual code change is required at this layer.
+
+```python
 """주문 라우터. docs/api-spec.md §3 매핑."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -48,3 +61,4 @@ def update_status(
     if order is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="주문을 찾을 수 없습니다.")
     return transition_status(db, order, payload.status)
+```

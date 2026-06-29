@@ -44,7 +44,7 @@ def create_order(db: Session, payload: OrderCreate) -> Order:
             )
         )
 
-    discount = calculate_discount(subtotal, user.grade, payload.coupon_code)
+    discount = calculate_discount(subtotal, user.grade, coupon_code=payload.coupon_code)
     order = Order(
         user_id=user.id,
         status=OrderStatus.PENDING,
