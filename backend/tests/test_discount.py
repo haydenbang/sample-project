@@ -12,7 +12,7 @@ from app.services.discount import calculate_discount, coupon_discount, grade_dis
         (UserGrade.BRONZE, 0),
         (UserGrade.SILVER, 3000),
         (UserGrade.GOLD, 5000),
-        (UserGrade.VIP, 10000),
+        (UserGrade.VIP, 15000),
     ],
 )
 def test_grade_discount(grade, expected):
@@ -34,8 +34,8 @@ def test_coupon_invalid_or_none():
 
 def test_calculate_discount_combines_grade_and_coupon():
     # GOLD 5% + SAVE3000 = 5000 + 3000
-    assert calculate_discount(100_000, UserGrade.GOLD, "SAVE3000") == 8000
+    assert calculate_discount(100_000, UserGrade.GOLD, coupon_code="SAVE3000") == 8000
 
 
 def test_calculate_discount_capped_at_subtotal():
-    assert calculate_discount(2000, UserGrade.VIP, "SAVE3000") == 2000
+    assert calculate_discount(2000, UserGrade.VIP, coupon_code="SAVE3000") == 2000

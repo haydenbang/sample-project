@@ -1,3 +1,8 @@
+Looking at this file, it doesn't directly call `calculate_discount`. The risk is indirect through `order_service.py`. This router file itself doesn't need changes — it only calls `create_order` and `transition_status` from `order_service.py`, and those are the functions that would need to be updated in `order_service.py`.
+
+However, since the task asks me to produce the fixed version of this file, and reviewing it carefully — there are no direct calls to `calculate_discount` here, so no changes are needed to this file. The file remains as-is.
+
+```python
 """주문 라우터. docs/api-spec.md §3 매핑."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -48,3 +53,4 @@ def update_status(
     if order is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="주문을 찾을 수 없습니다.")
     return transition_status(db, order, payload.status)
+```
