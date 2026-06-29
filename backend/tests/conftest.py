@@ -43,7 +43,14 @@ def client(db_session):
 
 @pytest.fixture
 def seed_basic(db_session):
-    """관리자 1명, GOLD 회원 1명, 상품 2개를 시드한다."""
+    """관리자 1명, GOLD 회원 1명, 상품 4개를 시드한다.
+
+    상품 구성:
+    - keyboard: ACTIVE
+    - mouse: ACTIVE
+    - monitor: LOW_STOCK  (신규 상태 커버리지)
+    - headset: SOLD_OUT
+    """
     admin = User(
         email="admin@shopadmin.io",
         hashed_password=hash_password("admin1234"),
@@ -64,9 +71,22 @@ def seed_basic(db_session):
     mouse = Product(
         name="무선 마우스", category="주변기기", price=25000, stock=30, status=ProductStatus.ACTIVE
     )
-    db_session.add_all([admin, customer, keyboard, mouse])
+    monitor = Product(
+        name="모니터", category="디스플레이", price=350000, stock=3, status=ProductStatus.LOW_STOCK
+    )
+    headset = Product(
+        name="헤드셋", category="주변기기", price=89000, stock=0, status=ProductStatus.SOLD_OUT
+    )
+    db_session.add_all([admin, customer, keyboard, mouse, monitor, headset])
     db_session.commit()
-    return {"admin": admin, "customer": customer, "keyboard": keyboard, "mouse": mouse}
+    return {
+        "admin": admin,
+        "customer": customer,
+        "keyboard": keyboard,
+        "mouse": mouse,
+        "monitor": monitor,
+        "headset": headset,
+    }
 
 
 def auth_header(client, email: str, password: str) -> dict[str, str]:
