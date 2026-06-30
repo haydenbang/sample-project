@@ -26,11 +26,14 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60
 
     # CORS (콤마 구분)
-    cors_origins: str = "http://localhost:5173"
+    # [인프라 설정 변경] cors_origins → cors_allowed_origins 리네임 (scenario/infra-config-rename)
+    # TODO(전파): docker-compose.yml·backend/.env.example 의 CORS_ORIGINS 환경변수를
+    #            CORS_ALLOWED_ORIGINS 로 갱신해야 한다. (미반영 시 운영 CORS 설정 누락)
+    cors_allowed_origins: str = "http://localhost:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+        return [o.strip() for o in self.cors_allowed_origins.split(",") if o.strip()]
 
 
 @lru_cache
