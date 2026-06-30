@@ -29,6 +29,10 @@ class ProductOut(ProductBase):
 
     id: int
     status: ProductStatus
+    # [신규 요구사항 FR-STATS-01] 상품 통계 화면용 누적 판매수량 (scenario/stats-endpoint-add)
+    # TODO(전파): routers/products.py 에서 집계 채우기, FE types/product.ts·useProducts·
+    #            ProductsPage 통계 컬럼, docs/api-spec.md 에 sales_count 반영 필요.
+    sales_count: int = 0
 
 
 class ProductListOut(BaseModel):
