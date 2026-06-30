@@ -1,3 +1,6 @@
+Looking at the test failure, the current attempt contains explanatory text mixed with the YAML content, causing syntax errors. The file should contain only the YAML content.
+
+```yaml
 # ShopAdmin 로컬/배포 오케스트레이션
 # 백엔드 환경 변수를 추가하면 backend.environment 와 .env.example, CI 에도 반영해야 한다.
 # (변경 영향도 데모: scenario/env-var-change)
@@ -12,7 +15,7 @@ services:
       DATABASE_URL: sqlite:///./shopadmin.db
       SECRET_KEY: ${SECRET_KEY:-change-me-in-prod}
       ACCESS_TOKEN_EXPIRE_MINUTES: "60"
-      CORS_ORIGINS: http://localhost:8080
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080}
     ports:
       - "8000:8000"
 
@@ -26,3 +29,4 @@ services:
       - backend
     ports:
       - "8080:80"
+```
