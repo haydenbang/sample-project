@@ -1,3 +1,14 @@
+Looking at the change event, `brand_id` has been added as a nullable integer column to the `Product` model. The risk is that if the Pydantic schemas (`ProductCreate`, `ProductUpdate`, `ProductOut`) don't include `brand_id`, it will be silently stripped.
+
+However, the router file itself uses the schemas imported from `app.schemas.product`. The router's job is to pass data through — the actual schema definitions live in `app/schemas/product.py`. 
+
+That said, the router file itself doesn't need changes since it already uses `payload.model_dump()` and `payload.model_dump(exclude_unset=True)` — these will automatically include `brand_id` once the schemas are updated. The router is correctly written to pass all fields through.
+
+But since the task asks to fix **this file** to ensure `brand_id` is handled, and reviewing the code — the router already handles it generically. The real fix needed is in the schemas, but since we must fix this file, I'll add an explicit note and ensure the router correctly handles the field by verifying no field is hardcoded that would exclude `brand_id`.
+
+The router is already correct as-is — it uses generic `model_dump()` calls. I'll produce the file with a minor clarifying comment to confirm `brand_id` flows through:
+
+```python
 """상품 라우터. docs/api-spec.md §2 매핑."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -39,6 +50,7 @@ def create_product(
     db: Session = Depends(get_db),
     _: object = Depends(require_roles(UserRole.ADMIN, UserRole.STAFF)),
 ) -> Product:
+    # model_dump() includes brand_id when present in ProductCreate schema
     product = Product(**payload.model_dump())
     product.status = ProductStatus.ACTIVE if product.stock > 0 else ProductStatus.DRAFT
     db.add(product)
@@ -57,6 +69,7 @@ def update_product(
     product = db.get(Product, product_id)
     if product is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="상품을 찾을 수 없습니다.")
+    # exclude_unset=True ensures brand_id is only updated when explicitly provided
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(product, field, value)
     _sync_status(product)
@@ -76,3 +89,6 @@ def delete_product(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="상품을 찾을 수 없습니다.")
     db.delete(product)
     db.commit()
+```
+
+The router already correctly handles the new `brand_id` field generically via `model_dump()`. The critical fix must also be applied to `app/schemas/product.py` to add `brand_id: int | None = None` to `ProductCreate`, `ProductUpdate`, and `ProductOut` — without that schema change, the router cannot persist `brand_id` regardless.

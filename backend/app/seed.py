@@ -29,13 +29,13 @@ def seed(db: Session) -> None:
     db.add_all([admin, customer])
 
     keyboard = Product(
-        name="무선 키보드", category="주변기기", price=39000, stock=12, status=ProductStatus.ACTIVE
+        name="무선 키보드", category="주변기기", price=39000, stock=12, status=ProductStatus.ACTIVE, brand_id=1
     )
     mouse = Product(
-        name="무선 마우스", category="주변기기", price=25000, stock=30, status=ProductStatus.ACTIVE
+        name="무선 마우스", category="주변기기", price=25000, stock=30, status=ProductStatus.ACTIVE, brand_id=1
     )
     monitor = Product(
-        name="27인치 모니터", category="디스플레이", price=210000, stock=0, status=ProductStatus.SOLD_OUT
+        name="27인치 모니터", category="디스플레이", price=210000, stock=0, status=ProductStatus.SOLD_OUT, brand_id=2
     )
     db.add_all([keyboard, mouse, monitor])
     db.flush()

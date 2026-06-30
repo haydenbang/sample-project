@@ -1,3 +1,8 @@
+Looking at the change event, a new `brand_id` field (nullable integer) has been added to the `Product` model. The risk identified is that if brand-specific logic needs `brand_id`, accessing it without a session refresh could cause issues.
+
+The fix ensures that after fetching a `Product` from the database, we explicitly refresh it so the `brand_id` column (and any other newly added columns) reflects the latest state from the database, preventing stale `None` values or `AttributeError` at runtime.
+
+```python
 """주문 생성/상태전이 비즈니스 로직."""
 
 from fastapi import HTTPException, status
@@ -33,6 +38,9 @@ def create_order(db: Session, payload: OrderCreate) -> Order:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"상품 {line.product_id} 를 찾을 수 없습니다.",
             )
+        # Refresh the product to ensure newly added columns (e.g., brand_id)
+        # are populated from the database and not stale.
+        db.refresh(product)
         line_total = product.price * line.quantity
         subtotal += line_total
         items.append(
@@ -70,3 +78,4 @@ def transition_status(db: Session, order: Order, new_status: OrderStatus) -> Ord
     db.commit()
     db.refresh(order)
     return order
+```
