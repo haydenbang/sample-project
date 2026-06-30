@@ -25,7 +25,10 @@ class OrderItemOut(BaseModel):
 
 class OrderCreate(BaseModel):
     user_id: int
-    coupon_code: str | None = None
+    # [정책 변경] 쿠폰 코드를 필수(optional→required)로 강화 (scenario/nullable-tighten)
+    # TODO(전파): FE types/order.ts·api/client.ts·useOrders·OrdersPage 폼, mock,
+    #            docs/api-spec.md 를 필수 필드로 갱신해야 한다. (미반영 시 FE가 null 전송 → 422)
+    coupon_code: str = Field(min_length=1)
     items: list[OrderItemCreate] = Field(min_length=1)
 
 
