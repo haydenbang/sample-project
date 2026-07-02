@@ -1,0 +1,139 @@
+{
+  "target": "haydenbang/sample-project",
+  "scenarios": [
+    {
+      "name": "db-schema-change",
+      "base_ref": "main",
+      "head_ref": "scenario/db-schema-change",
+      "changed_files": ["backend/app/models/user.py", "docs/db-schema.md"],
+      "expected_impacts": [
+        "backend/app/schemas/user.py",
+        "backend/app/routers/users.py",
+        "frontend/src/types/user.ts",
+        "docs/api-spec.md"
+      ],
+      "change_type": "FIELD_ADDED",
+      "description": "users 테이블에 phone 컬럼 추가",
+      "why_changed": "회원 연락처 관리 요구사항"
+    },
+    {
+      "name": "api-spec-change",
+      "base_ref": "main",
+      "head_ref": "scenario/api-spec-change",
+      "changed_files": ["backend/app/schemas/order.py", "docs/api-spec.md"],
+      "expected_impacts": ["frontend/src/types/order.ts", "frontend/src/pages/OrdersPage.tsx"],
+      "change_type": "FIELD_RENAMED",
+      "description": "주문 응답 필드 total -> final_amount 로 변경(별칭 매핑으로 모델 속성명은 유지)",
+      "why_changed": "API 스펙 명확화"
+    },
+    {
+      "name": "discount-policy-change",
+      "base_ref": "main",
+      "head_ref": "scenario/discount-policy-change",
+      "changed_files": ["backend/app/services/discount.py", "docs/requirements.md"],
+      "expected_impacts": ["backend/app/services/order_service.py", "backend/tests/test_discount.py"],
+      "change_type": "SIGNATURE_CHANGED",
+      "description": "calculate_discount 시그니처 변경(coupon_code 키워드 전용) + VIP 할인율 10%->15% 상향",
+      "why_changed": "정책 변경 + 호출 안전성 강화",
+      "notes": "order_service.py는 기존 positional 호출이라 실제로 깨짐(강한 신호)"
+    },
+    {
+      "name": "env-var-change",
+      "base_ref": "main",
+      "head_ref": "scenario/env-var-change",
+      "changed_files": [
+        "backend/.env.example",
+        "backend/Dockerfile",
+        "backend/app/config.py",
+        "backend/app/services/payment.py"
+      ],
+      "expected_impacts": ["docker-compose.yml", "ci/ci.yml", "scripts/deploy.sh"],
+      "change_type": "FIELD_ADDED",
+      "description": "결제 연동용 PAYMENT_API_KEY 환경변수 추가",
+      "why_changed": "결제 게이트웨이 연동"
+    },
+    {
+      "name": "low-stock-status",
+      "base_ref": "main",
+      "head_ref": "scenario/low-stock-status",
+      "changed_files": ["backend/app/models/product.py", "backend/tests/test_products.py"],
+      "expected_impacts": ["frontend/src/types/product.ts"],
+      "change_type": "ENUM_CHANGED",
+      "description": "ProductStatus에 LOW_STOCK 상태 추가(재고 임계값 3개 이하)",
+      "why_changed": "FR-PRODUCT-05 재고 부족 표시"
+    },
+    {
+      "name": "membership-tier",
+      "base_ref": "main",
+      "head_ref": "scenario/membership-tier",
+      "changed_files": ["backend/app/models/user.py", "backend/tests/test_discount.py", "docs/requirements.md"],
+      "expected_impacts": ["backend/app/services/discount.py", "frontend/src/types/user.ts"],
+      "change_type": "ENUM_CHANGED",
+      "description": "UserGrade에 PLATINUM 등급 추가(15% 할인)",
+      "why_changed": "요구사항 §3, FR-USER-03",
+      "notes": "discount.py의 GRADE_DISCOUNT_RATE에 PLATINUM 항목이 없어 테스트가 실패하는 상태"
+    },
+    {
+      "name": "order-refund-status",
+      "base_ref": "main",
+      "head_ref": "scenario/order-refund-status",
+      "changed_files": ["backend/app/models/order.py", "backend/tests/test_orders.py"],
+      "expected_impacts": ["backend/app/services/order_service.py", "frontend/src/types/order.ts"],
+      "change_type": "ENUM_CHANGED",
+      "description": "OrderStatus에 REFUNDED 상태 추가",
+      "why_changed": "운영 incident 핫픽스 — 취소 주문의 환불 완료 상태 부재",
+      "notes": "order_service.ALLOWED_TRANSITIONS에 전이 규칙이 없어 실제로 409가 발생하는 상태"
+    },
+    {
+      "name": "domain-mapping-brand",
+      "base_ref": "main",
+      "head_ref": "origin/scenario/domain-mapping-brand",
+      "changed_files": [
+        "backend/app/models/__init__.py",
+        "backend/app/models/brand.py",
+        "backend/app/models/product.py",
+        "backend/tests/test_products.py"
+      ],
+      "expected_impacts": [
+        "backend/app/schemas/product.py",
+        "backend/app/routers/products.py",
+        "backend/app/seed.py",
+        "frontend/src/types/product.ts"
+      ],
+      "change_type": "FIELD_ADDED",
+      "description": "신규 brands 도메인 추가 및 product.brand_id FK 매핑",
+      "why_changed": "설계자가 상품에 브랜드 도메인 도입"
+    },
+    {
+      "name": "infra-config-rename",
+      "base_ref": "main",
+      "head_ref": "origin/scenario/infra-config-rename",
+      "changed_files": ["backend/app/config.py"],
+      "expected_impacts": ["docker-compose.yml", "backend/.env.example"],
+      "change_type": "FIELD_RENAMED",
+      "description": "cors_origins -> cors_allowed_origins 설정 리네임",
+      "why_changed": "인프라 설정 네이밍 정비"
+    },
+    {
+      "name": "nullable-tighten",
+      "base_ref": "main",
+      "head_ref": "origin/scenario/nullable-tighten",
+      "changed_files": ["backend/app/schemas/order.py"],
+      "expected_impacts": ["frontend/src/types/order.ts"],
+      "change_type": "NULLABLE_CHANGED",
+      "description": "주문 생성 시 coupon_code를 optional -> required로 강화",
+      "why_changed": "쿠폰 없는 주문 방지 정책",
+      "notes": "FE가 null을 보내면 422가 발생하는 상태"
+    },
+    {
+      "name": "stats-endpoint-add",
+      "base_ref": "main",
+      "head_ref": "origin/scenario/stats-endpoint-add",
+      "changed_files": ["backend/app/schemas/product.py"],
+      "expected_impacts": ["backend/app/routers/products.py", "frontend/src/types/product.ts"],
+      "change_type": "FIELD_ADDED",
+      "description": "상품 통계용 sales_count 필드 추가",
+      "why_changed": "FR-STATS-01 상품 통계 화면"
+    }
+  ]
+}
